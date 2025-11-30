@@ -7,6 +7,18 @@ browserApi.runtime.onInstalled.addListener(() => {
   browserApi.storage.local.set({ [STORAGE_KEYS.STATUS]: STATUS.IDLE, [STORAGE_KEYS.LAST_ERROR]: '' });
 });
 
+// Open control window when the extension action is invoked.
+browserApi.action?.onClicked?.addListener(() => {
+  openControlWindow();
+});
+
+// Handle keyboard shortcut (_execute_action) to open control window.
+browserApi.commands?.onCommand?.addListener((command) => {
+  if (command === '_execute_action') {
+    openControlWindow();
+  }
+});
+
 browserApi.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   const { type } = message || {};
 
@@ -36,6 +48,19 @@ async function pushAdviceToActiveTab(text) {
   } catch (err) {
     console.warn('Unable to send advice to tab', err);
   }
+}
+
+function openControlWindow() {
+  const url = browserApi.runtime.getURL('src/control/control.html');
+  browserApi.windows?.create(
+    {
+      url,
+      type: 'popup',
+      width: 420,
+      height: 680
+    },
+    () => void browserApi.runtime.lastError
+  );
 }
 
 function updateStatus(status, error = '') {

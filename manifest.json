@@ -4,7 +4,6 @@
   "version": "0.1.0",
   "description": "Listen to meeting audio (microphone), send it to a backend, and show live coaching advice.",
   "action": {
-    "default_popup": "src/popup/popup.html",
     "default_title": "Meeting Coach",
     "default_icon": {
       "16": "assets/icons/icon-16.png",
@@ -26,6 +25,14 @@
       "run_at": "document_idle"
     }
   ],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y"
+      },
+      "description": "Open Meeting Coach"
+    }
+  },
   "icons": {
     "16": "assets/icons/icon-16.png",
     "32": "assets/icons/icon-32.png",

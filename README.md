@@ -14,14 +14,15 @@ src/
   common/messaging.js        # shared constants + browser API helper
   background/serviceWorker.js# status/advice relay
   content/contentScript.js   # snackbar overlay
-  popup/popup.html/js        # UI + mic recorder + preview
+  popup/popup.html/js/css    # popup UI + recorder + preview + WS input
+  control/control.html/js    # persistent control window (same UI/logic)
 assets/icons/icon-*.png      # icons
 ```
 
 ## Load
 1) chrome://extensions → enable Developer mode.
 2) Load unpacked → select this folder.
-3) Pin the extension, click Meeting Coach, grant mic, and start listening.
+3) Pin the extension, click Meeting Coach. Use **Open Control Window** for a persistent UI that won't auto-close; start listening there, approve sharing, and (optionally) set a WS URL to stream chunks.
 
 ## Notes
 - Permissions: tabs, activeTab, scripting, storage, host <all_urls>. Audio access is granted via the user prompt when recording starts (ensure you tick “Share tab audio” in the picker).

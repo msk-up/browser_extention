@@ -3,6 +3,8 @@ export const MESSAGE_TYPES = {
   STOP_LISTENING: 'STOP_LISTENING',
   STATUS_UPDATE: 'STATUS_UPDATE',
   ADVICE: 'ADVICE',
+  ADVICE_LEFT: 'ADVICE_LEFT',
+  ADVICE_CENTER: 'ADVICE_CENTER',
   CHUNK_PREVIEW: 'CHUNK_PREVIEW'
 };
 
@@ -16,7 +18,9 @@ export const STATUS = {
 export const STORAGE_KEYS = {
   STATUS: 'status',
   LAST_ERROR: 'lastError',
-  WS_URL: 'wsUrl'
+  WS_URL: 'wsUrl',
+  MIC_WS_URL: 'micWsUrl',
+  TEXT_WS_URL: 'textWsUrl'
 };
 
 export const browserApi = (() => {

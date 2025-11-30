@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting Coach Control</title>
+    <style>
+      :root { color-scheme: light; }
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+      }
+      h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.02em;
+      }
+      #status {
+        text-align: center;
+        font-size: 13px;
+        color: #cbd5e1;
+      }
+      #toggle {
+        width: 120px;
+        height: 120px;
+        border-radius: 999px;
+        border: none;
+        background: radial-gradient(circle at 30% 30%, #ff6b6b, #b91c1c);
+        color: #fff;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 14px 30px rgba(239, 68, 68, 0.35);
+        transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+      }
+      #toggle:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 18px 34px rgba(239, 68, 68, 0.4);
+        filter: brightness(1.05);
+      }
+      #toggle:active {
+        transform: translateY(1px);
+        box-shadow: 0 10px 20px rgba(239, 68, 68, 0.35);
+      }
+      #toggle:disabled {
+        cursor: not-allowed;
+        filter: grayscale(0.6);
+        box-shadow: none;
+      }
+      #mock-advice { display: none; }
+      label {
+        display: block;
+        width: 100%;
+        font-size: 12px;
+        color: #cbd5e1;
+      }
+      input {
+        width: 100%;
+        margin-top: 4px;
+        padding: 10px;
+        border: 1px solid #334155;
+        border-radius: 10px;
+        background: #111827;
+        color: #e2e8f0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Meeting Coach Control</h1>
+    <div id="status">Status: Idle</div>
+    <button id="toggle">Start</button>
+    <button id="mock-advice" style="display:none;">Show Mock Advice</button>
+    <label>
+      Score
+      <input id="score-field" type="text" readonly value="Score: -" />
+    </label>
+    <script type="module" src="control.js"></script>
+  </body>
+</html>
