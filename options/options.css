@@ -1,12 +1,18 @@
 body {
-  font-family: "Inter", "Segoe UI", sans-serif;
+  font-family: 'Helvetica', 'Arial', sans-serif;
   margin: 20px;
-  color: #0f172a;
+  color: #000000;
+  background: #ffffff;
   max-width: 600px;
 }
 
 h1 {
+  font-family: 'Apple Garamond Light', 'Garamond', serif;
   margin-top: 0;
+  font-size: 32px;
+  font-weight: 300;
+  color: #000000;
+  letter-spacing: 0.5px;
 }
 
 form {
@@ -19,20 +25,24 @@ label {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-weight: 600;
+  font-weight: 400;
+  color: #000000;
 }
 
 label.row {
   flex-direction: row;
   align-items: center;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 input[type="text"] {
   padding: 8px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border: 1px solid #000000;
+  border-radius: 4px;
   font-size: 14px;
+  background: #ffffff;
+  color: #000000;
+  font-family: 'Helvetica', 'Arial', sans-serif;
 }
 
 input[type="checkbox"] {
@@ -48,15 +58,22 @@ input[type="checkbox"] {
 
 button {
   padding: 10px 14px;
-  background: #2563eb;
-  color: #f8fafc;
-  border: none;
-  border-radius: 8px;
+  background: #000000;
+  color: #ffffff;
+  border: 1px solid #000000;
+  border-radius: 4px;
   cursor: pointer;
-  font-weight: 700;
+  font-weight: 400;
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: #333333;
+  border-color: #333333;
 }
 
 #status {
   font-size: 13px;
-  color: #16a34a;
+  color: #000000;
 }

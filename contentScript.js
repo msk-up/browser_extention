@@ -15,7 +15,7 @@ function ensureBar() {
 
   const textEl = document.createElement("div");
   textEl.id = TEXT_ID;
-  textEl.textContent = "Negotiation assistant ready.";
+  textEl.textContent = "whispas ready.";
 
   const statusEl = document.createElement("div");
   statusEl.id = STATUS_ID;

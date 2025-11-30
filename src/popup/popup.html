@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Meeting Coach</title>
+    <title>whispas</title>
     <style>
       :root {
         color-scheme: light;
@@ -11,80 +11,98 @@
       body {
         margin: 0;
         padding: 12px 14px;
-        font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-        background: #f8fafc;
-        color: #0f172a;
+        font-family: 'Helvetica', 'Arial', sans-serif;
+        background: #ffffff;
+        color: #000000;
         width: 320px;
         box-sizing: border-box;
       }
       h1 {
-        font-size: 18px;
+        font-family: 'Apple Garamond Light', 'Garamond', serif;
+        font-size: 24px;
+        font-weight: 300;
         margin: 0 0 8px;
         display: flex;
         align-items: center;
         gap: 8px;
+        color: #000000;
+        letter-spacing: 0.5px;
       }
       h1 span {
         display: inline-block;
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        background: #22c55e;
+        background: #000000;
         opacity: 0.15;
         transition: opacity 0.25s ease;
       }
       h1.active span {
         opacity: 0.8;
-        box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.12);
+        box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.12);
       }
       #status {
         margin: 4px 0 14px;
         font-size: 13px;
-        color: #475569;
+        color: #666666;
       }
       button {
         width: 100%;
         padding: 10px 12px;
-        border: none;
-        border-radius: 8px;
-        background: #2563eb;
-        color: #fff;
-        font-size: 15px;
+        border: 1px solid #000000;
+        border-radius: 4px;
+        background: #000000;
+        color: #ffffff;
+        font-size: 14px;
+        font-family: 'Helvetica', 'Arial', sans-serif;
         cursor: pointer;
         transition: background 0.2s ease, transform 0.1s ease;
       }
       button:hover {
-        background: #1d4ed8;
+        background: #333333;
+        border-color: #333333;
       }
       button:active {
         transform: translateY(1px);
       }
       button:disabled {
-        background: #cbd5e1;
+        background: #e0e0e0;
+        border-color: #e0e0e0;
+        color: #999999;
         cursor: not-allowed;
       }
       #mock-advice {
         margin-top: 8px;
-        background: #10b981;
+        background: #ffffff;
+        color: #000000;
+        border: 1px solid #000000;
       }
       #mock-advice:hover {
-        background: #0f9f78;
+        background: #f5f5f5;
       }
       #open-control {
         margin-top: 8px;
-        background: #6b7280;
+        background: #ffffff;
+        color: #000000;
+        border: 1px solid #000000;
+      }
+      #open-control:hover {
+        background: #f5f5f5;
       }
       .preview {
         margin-top: 12px;
         padding: 10px 12px;
-        border-radius: 8px;
-        background: #e2e8f0;
+        border-radius: 4px;
+        background: #fafafa;
+        border: 1px solid #e0e0e0;
       }
       .preview__title {
-        font-size: 13px;
-        font-weight: 600;
-        color: #0f172a;
+        font-family: 'Apple Garamond Light', 'Garamond', serif;
+        font-size: 14px;
+        font-weight: 300;
+        color: #000000;
         margin-bottom: 6px;
+        letter-spacing: 0.3px;
       }
       audio {
         width: 100%;
@@ -92,22 +110,23 @@
       .meta {
         margin-top: 6px;
         font-size: 12px;
-        color: #475569;
+        color: #666666;
         min-height: 16px;
       }
       .hint {
         margin: 10px 0 0;
         font-size: 12px;
-        color: #64748b;
+        color: #666666;
+        line-height: 1.4;
       }
     </style>
   </head>
   <body>
-    <h1>Meeting Coach</h1>
+    <h1>whispas</h1>
     <div id="status">Status: Idle</div>
     <button id="toggle">Start Listening</button>
-    <button id="mock-advice" style="margin-top:8px;background:#10b981;">Show Mock Advice</button>
-    <button id="open-control" style="margin-top:8px;background:#6b7280;">Open Control Window</button>
+    <button id="mock-advice" style="margin-top:8px;background:#ffffff;color:#000000;border:1px solid #000000;">Show Mock Advice</button>
+    <button id="open-control" style="margin-top:8px;background:#ffffff;color:#000000;border:1px solid #000000;">Open Control Window</button>
     <div class="preview">
       <div class="preview__title">System live sample</div>
       <audio id="preview-audio" controls preload="metadata"></audio>

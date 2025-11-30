@@ -6,7 +6,8 @@
 
   const MESSAGE_TYPES = {
     ADVICE: 'ADVICE',
-    ADVICE_CENTER: 'ADVICE_CENTER'
+    ADVICE_CENTER: 'ADVICE_CENTER',
+    ADVICE_LEFT: 'ADVICE_LEFT'
   };
 
   let hideTimer = null;
@@ -14,7 +15,7 @@
   const DISPLAY_DURATION = 12000;
 
   chrome.runtime.onMessage.addListener((message) => {
-    if (message?.type === MESSAGE_TYPES.ADVICE) {
+    if (message?.type === MESSAGE_TYPES.ADVICE || message?.type === MESSAGE_TYPES.ADVICE_LEFT) {
       const text = message.payload?.text || 'New advice received';
       showAdvice(text);
     }
@@ -88,10 +89,11 @@
         bottom: 20px;
         max-width: 320px;
         padding: 12px 14px;
-        border-radius: 10px;
-        background: #111827;
-        color: #f9fafb;
-        font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+        border-radius: 4px;
+        border: 1px solid #000000;
+        background: #000000;
+        color: #ffffff;
+        font-family: 'Helvetica', 'Arial', sans-serif;
         font-size: 16px;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
         opacity: 0;

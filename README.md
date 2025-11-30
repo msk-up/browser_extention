@@ -1,4 +1,4 @@
-# Meeting Coach (Mic-only)
+# whispas (Mic-only)
 
 Mic-only build: records microphone audio in the popup (1s chunks) and overlays advice on the active page.
 
@@ -22,7 +22,7 @@ assets/icons/icon-*.png      # icons
 ## Load
 1) chrome://extensions → enable Developer mode.
 2) Load unpacked → select this folder.
-3) Pin the extension, click Meeting Coach. Use **Open Control Window** for a persistent UI that won't auto-close; start listening there, approve sharing, and (optionally) set a WS URL to stream chunks.
+3) Pin the extension, click whispas. Use **Open Control Window** for a persistent UI that won't auto-close; start listening there, approve sharing, and (optionally) set a WS URL to stream chunks.
 
 ## Notes
 - Permissions: tabs, activeTab, scripting, storage, host <all_urls>. Audio access is granted via the user prompt when recording starts (ensure you tick “Share tab audio” in the picker).

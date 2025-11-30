@@ -433,8 +433,8 @@ function openControlWindow() {
     {
       url,
       type: 'popup',
-      width: 420,
-      height: 680
+      width: 800,
+      height: 600
     },
     () => void browserApi.runtime.lastError
   );
