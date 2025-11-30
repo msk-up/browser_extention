@@ -290,7 +290,7 @@ async function sendMockAdvice() {
     await ensureContentScript(tab.id);
     const captionText = captionInput?.value?.trim();
     await browserApi.tabs.sendMessage(tab.id, {
-      type: MESSAGE_TYPES.ADVICE_CENTER,
+      type: MESSAGE_TYPES.ADVICE,
       payload: { text: captionText || 'Mock advice: keep answers concise and listen actively.' }
     });
     renderStatus(currentStatus, 'Mock advice sent');
@@ -441,12 +441,44 @@ function openControlWindow() {
 }
 
 async function extractText(data) {
-  if (typeof data === 'string') return data;
+  // Try to parse JSON with a "text" property; fall back to raw string.
+  if (typeof data === 'string') {
+    try {
+      const parsed = JSON.parse(data);
+      if (parsed && typeof parsed.text === 'string') {
+        console.info('[WS] received JSON', parsed);
+        return parsed.text;
+      }
+    } catch (_err) {
+      // not JSON; fall through
+    }
+    return data;
+  }
   if (data instanceof ArrayBuffer) {
-    return new TextDecoder().decode(data);
+    const decoded = new TextDecoder().decode(data);
+    try {
+      const parsed = JSON.parse(decoded);
+      if (parsed && typeof parsed.text === 'string') {
+        console.info('[WS] received JSON', parsed);
+        return parsed.text;
+      }
+    } catch (_err) {
+      // not JSON; fall through
+    }
+    return decoded;
   }
   if (data instanceof Blob) {
-    return await data.text();
+    const decoded = await data.text();
+    try {
+      const parsed = JSON.parse(decoded);
+      if (parsed && typeof parsed.text === 'string') {
+        console.info('[WS] received JSON', parsed);
+        return parsed.text;
+      }
+    } catch (_err) {
+      // not JSON; fall through
+    }
+    return decoded;
   }
   return '';
 }
