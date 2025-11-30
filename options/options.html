@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Negotiation Assistant Options</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <h1>Negotiation Assistant Settings</h1>
+    <form id="options-form">
+      <label>
+        WebSocket URL
+        <input type="text" id="ws-url" placeholder="wss://localhost:8080/ws" />
+      </label>
+      <label class="row">
+        <input type="checkbox" id="auto-connect" />
+        <span>Auto-connect when capture starts</span>
+      </label>
+      <label class="row">
+        <input type="checkbox" id="auto-snackbar" />
+        <span>Always show snackbar</span>
+      </label>
+      <label class="row">
+        <input type="checkbox" id="mock-mode" />
+        <span>Mock mode (local fake suggestions)</span>
+      </label>
+      <div class="actions">
+        <button type="submit">Save</button>
+        <span id="status"></span>
+      </div>
+    </form>
+    <script src="options.js"></script>
+  </body>
+</html>

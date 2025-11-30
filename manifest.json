@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Meeting Coach",
   "version": "0.1.0",
-  "description": "Listen to meeting audio, send it to a backend, and show live coaching advice.",
+  "description": "Listen to meeting audio (microphone), send it to a backend, and show live coaching advice.",
   "action": {
     "default_popup": "src/popup/popup.html",
     "default_title": "Meeting Coach",
@@ -13,27 +13,7 @@
       "128": "assets/icons/icon-128.png"
     }
   },
-  "permissions": [
-    "tabCapture",
-    "desktopCapture",
-    "offscreen",
-    "tabs",
-    "activeTab",
-    "scripting",
-    "storage"
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "src/offscreen/offscreen.html",
-        "src/offscreen/offscreen.js",
-        "src/common/messaging.js"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
-    }
-  ],
+  "permissions": ["tabs", "activeTab", "scripting", "storage"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "src/background/serviceWorker.js",

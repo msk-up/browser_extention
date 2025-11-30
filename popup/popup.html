@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Negotiation Assistant</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Negotiation Assistant</h1>
+      <p class="hint">Streams audio to backend and shows suggestions in-page.</p>
+    </header>
+
+    <section class="controls">
+      <button id="start-mic">Start Mic</button>
+      <button id="start-tab">Start Tab Audio</button>
+      <button id="stop">Stop</button>
+    </section>
+
+    <section class="status">
+      <div><strong>Capture:</strong> <span id="capture-state">idle</span></div>
+      <div><strong>Source:</strong> <span id="capture-source">n/a</span></div>
+      <div><strong>WebSocket:</strong> <span id="ws-state">closed</span></div>
+      <div class="level-wrap">
+        <span><strong>Level:</strong></span>
+        <div id="level-bar"><div id="level-fill"></div></div>
+      </div>
+      <div class="debug-line"><strong>Debug:</strong> <span id="debug-text">idle</span></div>
+    </section>
+
+    <section class="debug">
+      <h2>Debug / Mock</h2>
+      <label class="toggle">
+        <input type="checkbox" id="mock-mode" />
+        <span>Mock mode (generate suggestions locally)</span>
+      </label>
+      <div class="fake">
+        <input id="fake-text" type="text" placeholder="Send fake suggestion..." />
+        <button id="send-fake">Send</button>
+      </div>
+      <p class="hint">Uses PCM S16LE chunks @ AudioContext sample rate.</p>
+    </section>
+
+    <footer>
+      <a href="../options/options.html" target="_blank">Options</a>
+    </footer>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

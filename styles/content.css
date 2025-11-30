@@ -1,0 +1,62 @@
+#negotiation-assistant-snackbar {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 90vw;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(22, 24, 35, 0.9);
+  color: #f9f9fb;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+#negotiation-assistant-snackbar.collapsed {
+  min-height: 14px;
+  max-height: 14px;
+  overflow: hidden;
+}
+
+#negotiation-assistant-text {
+  font-size: 15px;
+  line-height: 1.4;
+  flex: 1 1 auto;
+  white-space: pre-wrap;
+}
+
+#negotiation-assistant-status {
+  font-size: 12px;
+  color: #9fb7ff;
+  flex: 0 0 auto;
+}
+
+.negotiation-assistant-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.negotiation-assistant-buttons button {
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: #f9f9fb;
+  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#negotiation-assistant-share {
+  width: auto;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.negotiation-assistant-buttons button:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
