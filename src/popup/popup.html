@@ -57,6 +57,12 @@
     <h1>Meeting Coach</h1>
     <div id="status">Status: Idle</div>
     <button id="toggle">Start Listening</button>
+    <button id="mock-advice" style="margin-top:8px;background:#10b981;">Show Mock Advice</button>
+    <div class="preview">
+      <div class="preview__title">Live sample</div>
+      <audio id="preview-audio" controls preload="metadata"></audio>
+      <div id="preview-meta" class="meta">No audio captured yet.</div>
+    </div>
     <div class="hint">Open your meeting tab, then start listening to stream audio to your backend.</div>
     <script type="module" src="popup.js"></script>
   </body>

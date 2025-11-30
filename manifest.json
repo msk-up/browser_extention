@@ -15,7 +15,9 @@
   },
   "permissions": [
     "tabCapture",
+    "desktopCapture",
     "offscreen",
+    "tabs",
     "activeTab",
     "scripting",
     "storage"

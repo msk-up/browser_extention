@@ -1,10 +1,14 @@
-import { MESSAGE_TYPES, STATUS, STORAGE_KEYS } from '../common/messaging.js';
+import { MESSAGE_TYPES, STATUS, STORAGE_KEYS, sendMessageToActiveTab } from '../common/messaging.js';
 
 const toggleBtn = document.getElementById('toggle');
 const statusEl = document.getElementById('status');
+const previewAudio = document.getElementById('preview-audio');
+const previewMeta = document.getElementById('preview-meta');
+const mockAdviceBtn = document.getElementById('mock-advice');
 
 let currentStatus = STATUS.IDLE;
 let lastError = '';
+// Recording is handled in the background/offscreen; popup only initiates capture.
 
 init();
 
@@ -30,9 +34,14 @@ async function init() {
       lastError = error;
       renderStatus(status, error);
     }
+
+    if (message?.type === MESSAGE_TYPES.CHUNK_PREVIEW && message.payload?.dataUrl) {
+      updatePreview(message.payload);
+    }
   });
 
   toggleBtn.addEventListener('click', onToggleClick);
+  mockAdviceBtn.addEventListener('click', showMockAdvice);
 }
 
 async function onToggleClick() {
@@ -45,9 +54,10 @@ async function onToggleClick() {
 
   toggleBtn.disabled = true;
   try {
-    await requestMicOnce();
+    // Trigger desktop/tab picker from visible popup for user gesture.
+    const streamId = await requestDesktopStreamId();
     await new Promise((resolve) => {
-      chrome.runtime.sendMessage({ type: MESSAGE_TYPES.START_LISTENING }, (response) => {
+      chrome.runtime.sendMessage({ type: MESSAGE_TYPES.START_LISTENING, payload: { streamId } }, (response) => {
         if (!response?.ok) {
           currentStatus = STATUS.ERROR;
           lastError = response?.error || 'Unable to start';
@@ -61,7 +71,7 @@ async function onToggleClick() {
     });
   } catch (err) {
     currentStatus = STATUS.ERROR;
-    lastError = err?.message || 'Microphone permission blocked';
+    lastError = err?.message || 'Capture was blocked or dismissed';
     renderStatus(currentStatus, lastError);
   } finally {
     toggleBtn.disabled = false;
@@ -75,11 +85,83 @@ function renderStatus(status, error = '') {
   toggleBtn.disabled = status === STATUS.SENDING;
 }
 
-async function requestMicOnce() {
+function updatePreview(payload) {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    stream.getTracks().forEach((t) => t.stop());
+    previewAudio.src = payload.dataUrl;
+    previewAudio.load();
+    const kb = Math.round((payload.size || 0) / 1024);
+    const time = new Date(payload.ts || Date.now()).toLocaleTimeString();
+    previewMeta.textContent = `Last chunk: ${kb} KB · ${payload.mime || 'audio/webm'} · ${time}`;
+  } catch (_err) {
+    // ignore preview errors
+  }
+}
+
+async function requestDesktopStreamId() {
+  return new Promise((resolve, reject) => {
+    chrome.desktopCapture.chooseDesktopMedia(['tab', 'audio'], (streamId) => {
+      if (!streamId) {
+        reject(new Error('Desktop capture prompt dismissed'));
+        return;
+      }
+      resolve(streamId);
+    });
+  });
+}
+
+async function showMockAdvice() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.id || !tab.url || !/^https?:/i.test(tab.url) || tab.url.includes('chrome.google.com/webstore')) {
+    renderStatus(STATUS.ERROR, 'Open a normal page tab first, then retry mock advice');
+    return;
+  }
+
+  try {
+    await ensureContentScript(tab.id);
+    await chrome.tabs.sendMessage(tab.id, {
+      type: MESSAGE_TYPES.ADVICE,
+      payload: { text: 'Mock tip: keep answers concise and clear.' }
+    });
+    renderStatus(currentStatus, 'Mock advice sent to page');
   } catch (err) {
-    throw new Error(err?.message || err?.name || 'Microphone permission blocked');
+    renderStatus(STATUS.ERROR, err?.message || 'Could not send mock advice');
+  }
+}
+
+async function tryGetUserMediaSequential(list) {
+  let lastErr;
+  for (const constraints of list) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      return await navigator.mediaDevices.getUserMedia(constraints);
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr || new Error('Unable to capture audio stream');
+}
+
+function chooseMimeType() {
+  const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/ogg'];
+  for (const type of types) {
+    if (MediaRecorder.isTypeSupported(type)) {
+      return type;
+    }
+  }
+  return '';
+}
+
+async function ensureContentScript(tabId) {
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ['src/content/contentScript.js']
+    });
+  } catch (err) {
+    // Ignore if already injected; rethrow other errors.
+    const msg = err?.message || '';
+    if (!msg.includes('Cannot access a chrome:// URL') && !msg.includes('Already injected')) {
+      throw err;
+    }
   }
 }

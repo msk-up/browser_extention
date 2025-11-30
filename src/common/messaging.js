@@ -5,7 +5,10 @@ export const MESSAGE_TYPES = {
   GET_STATUS: 'GET_STATUS',
   ADVICE: 'ADVICE',
   OFFSCREEN_START: 'OFFSCREEN_START',
-  OFFSCREEN_STOP: 'OFFSCREEN_STOP'
+  OFFSCREEN_STOP: 'OFFSCREEN_STOP',
+  CHUNK_PREVIEW: 'CHUNK_PREVIEW',
+  START_DESKTOP_CAPTURE: 'START_DESKTOP_CAPTURE',
+  POPUP_CHUNK: 'POPUP_CHUNK'
 };
 
 export const STATUS = {
@@ -21,7 +24,20 @@ export const STORAGE_KEYS = {
 };
 
 export async function sendMessageToActiveTab(message) {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.id) {
+    const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    tab = tabs?.[0];
+  }
   if (!tab?.id) return;
-  return chrome.tabs.sendMessage(tab.id, message);
+  return new Promise((resolve, reject) => {
+    chrome.tabs.sendMessage(tab.id, message, (response) => {
+      const err = chrome.runtime.lastError;
+      if (err) {
+        reject(new Error(err.message));
+        return;
+      }
+      resolve(response);
+    });
+  });
 }
