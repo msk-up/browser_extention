@@ -6,18 +6,29 @@ const previewAudio = document.getElementById('preview-audio');
 const previewMeta = document.getElementById('preview-meta');
 const mockAdviceBtn = document.getElementById('mock-advice');
 const header = document.querySelector('h1');
+const wsUrlInput = document.getElementById('ws-url');
 
 let currentStatus = STATUS.IDLE;
 let lastError = '';
 let mediaRecorder = null;
 let captureStream = null;
+let recorderStream = null;
+let ws = null;
+let wsReady = false;
+let wsUrl = '';
 
 init();
 
 async function init() {
-  const stored = await browserApi.storage.local.get([STORAGE_KEYS.STATUS, STORAGE_KEYS.LAST_ERROR]);
+  const stored = await browserApi.storage.local.get([
+    STORAGE_KEYS.STATUS,
+    STORAGE_KEYS.LAST_ERROR,
+    STORAGE_KEYS.WS_URL
+  ]);
   currentStatus = stored[STORAGE_KEYS.STATUS] || STATUS.IDLE;
   lastError = stored[STORAGE_KEYS.LAST_ERROR] || '';
+  wsUrl = stored[STORAGE_KEYS.WS_URL] || '';
+  if (wsUrlInput) wsUrlInput.value = wsUrl;
   renderStatus(currentStatus, lastError);
 
   browserApi.runtime.onMessage.addListener((message) => {
@@ -32,6 +43,9 @@ async function init() {
 
   toggleBtn.addEventListener('click', onToggleClick);
   mockAdviceBtn.addEventListener('click', sendMockAdvice);
+  wsUrlInput?.addEventListener('change', onWsUrlChange);
+  // Keep the popup alive by pinning timers; Chrome will still close on blur but this reduces GC sleeps.
+  setInterval(() => chrome.runtime?.getPlatformInfo?.(() => {}), 20000);
 
   window.addEventListener('unhandledrejection', (event) => {
     event.preventDefault();
@@ -49,7 +63,7 @@ async function onToggleClick() {
 
   toggleBtn.disabled = true;
   try {
-    const stream = await requestMicrophoneStream();
+    const stream = await requestSystemStream();
     await startRecording(stream);
   } catch (err) {
     currentStatus = STATUS.ERROR;
@@ -80,41 +94,87 @@ function updatePreview(payload) {
   }
 }
 
-async function requestMicrophoneStream() {
-  if (!navigator.mediaDevices?.getUserMedia) {
-    throw new Error('Microphone capture not supported in this browser');
+async function requestSystemStream() {
+  if (!navigator.mediaDevices?.getDisplayMedia) {
+    throw new Error('System capture not supported in this browser');
   }
-  return navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+  return navigator.mediaDevices.getDisplayMedia({ audio: true, video: true });
 }
 
 async function startRecording(stream) {
   captureStream = stream;
+  const audioTracks = stream.getAudioTracks();
+  if (!audioTracks.length) {
+    throw new Error('No audio track in shared stream. Ensure "Share tab audio" is enabled in the picker.');
+  }
+  // Keep original stream alive; record only audio tracks.
+  recorderStream = new MediaStream(audioTracks);
+
+  // Stop if the shared tracks end (user stops sharing).
+  captureStream.getTracks().forEach((t) => {
+    t.onended = () => stopRecording('Capture ended');
+  });
+
   const mimeType = chooseMimeType();
   const options = mimeType ? { mimeType } : undefined;
-  mediaRecorder = new MediaRecorder(stream, options);
+  try {
+    mediaRecorder = new MediaRecorder(recorderStream, options);
+  } catch (err) {
+    cleanup();
+    throw err;
+  }
   mediaRecorder.ondataavailable = handleChunk;
   mediaRecorder.onstop = cleanup;
+  mediaRecorder.onerror = (event) => {
+    const msg = event?.error?.message || event?.error?.name || 'Recorder error';
+    stopRecording(msg);
+  };
   mediaRecorder.start(4000); // emit larger 4s chunks for easier listening
+  openWebSocket();
   currentStatus = STATUS.LISTENING;
   lastError = '';
   renderStatus(currentStatus, lastError);
-  browserApi.runtime.sendMessage({ type: MESSAGE_TYPES.STATUS_UPDATE, payload: { status: currentStatus, error: '' } });
+  safeSendStatus(currentStatus, '');
 }
 
-function stopRecording() {
-  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-    mediaRecorder.stop();
+function stopRecording(reason = '') {
+  try {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+    }
+  } catch (err) {
+    console.warn('Stop recorder failed', err);
+  } finally {
+    cleanup(); // stop tracks but keep preview element intact
+    currentStatus = STATUS.IDLE;
+    lastError = reason || '';
+    renderStatus(currentStatus, lastError);
+    safeSendStatus(currentStatus, lastError);
+    closeWebSocket();
   }
-  currentStatus = STATUS.IDLE;
-  renderStatus(currentStatus);
-  browserApi.runtime.sendMessage({ type: MESSAGE_TYPES.STATUS_UPDATE, payload: { status: currentStatus, error: '' } });
 }
 
 function cleanup() {
   if (captureStream) {
-    captureStream.getTracks().forEach((t) => t.stop());
+    captureStream.getTracks().forEach((t) => {
+      try {
+        t.stop();
+      } catch (_err) {
+        // ignore
+      }
+    });
   }
   captureStream = null;
+  if (recorderStream) {
+    recorderStream.getTracks().forEach((t) => {
+      try {
+        t.stop();
+      } catch (_err) {
+        // ignore
+      }
+    });
+  }
+  recorderStream = null;
   mediaRecorder = null;
 }
 
@@ -126,7 +186,15 @@ async function handleChunk(event) {
     mime: event.data.type || 'audio/webm',
     ts: Date.now()
   });
-  // Backend disabled; no send.
+  if (wsReady && ws) {
+    try {
+      ws.send(event.data);
+    } catch (err) {
+      wsReady = false;
+      lastError = err?.message || 'WebSocket send failed';
+      renderStatus(currentStatus, lastError);
+    }
+  }
 }
 
 async function sendMockAdvice() {
@@ -184,4 +252,58 @@ async function blobToDataUrl(blob) {
   const base64 = btoa(binary);
   const mime = blob.type || 'application/octet-stream';
   return `data:${mime};base64,${base64}`;
+}
+
+function safeSendStatus(status, error) {
+  // In MV3 the service worker may be asleep; ignore missing receiver errors.
+  if (!browserApi?.runtime?.sendMessage) return;
+  browserApi.runtime.sendMessage({ type: MESSAGE_TYPES.STATUS_UPDATE, payload: { status, error } }, () => {
+    void browserApi.runtime.lastError;
+  });
+}
+
+function onWsUrlChange() {
+  wsUrl = wsUrlInput?.value?.trim() || '';
+  browserApi.storage.local.set({ [STORAGE_KEYS.WS_URL]: wsUrl });
+  if (!wsUrl) {
+    closeWebSocket();
+  }
+}
+
+function openWebSocket() {
+  closeWebSocket();
+  if (!wsUrl) return;
+  try {
+    ws = new WebSocket(wsUrl);
+    ws.binaryType = 'arraybuffer';
+    ws.onopen = () => {
+      wsReady = true;
+      renderStatus(currentStatus, lastError);
+    };
+    ws.onerror = (event) => {
+      wsReady = false;
+      lastError = event?.message || 'WebSocket error';
+      renderStatus(currentStatus, lastError);
+    };
+    ws.onclose = () => {
+      wsReady = false;
+      ws = null;
+    };
+  } catch (err) {
+    wsReady = false;
+    lastError = err?.message || 'WebSocket connect failed';
+    renderStatus(currentStatus, lastError);
+  }
+}
+
+function closeWebSocket() {
+  if (ws) {
+    try {
+      ws.close();
+    } catch (_err) {
+      // ignore
+    }
+  }
+  ws = null;
+  wsReady = false;
 }

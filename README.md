@@ -24,5 +24,5 @@ assets/icons/icon-*.png      # icons
 3) Pin the extension, click Meeting Coach, grant mic, and start listening.
 
 ## Notes
-- Permissions: tabs, activeTab, scripting, storage, host <all_urls>. Mic access is granted via the user prompt when recording starts; no special manifest key is needed.
+- Permissions: tabs, activeTab, scripting, storage, host <all_urls>. Audio access is granted via the user prompt when recording starts (ensure you tick “Share tab audio” in the picker).
 - Backend streaming is commented out; enable by wiring API_URL/WS_URL in code if needed.

@@ -15,7 +15,8 @@ export const STATUS = {
 
 export const STORAGE_KEYS = {
   STATUS: 'status',
-  LAST_ERROR: 'lastError'
+  LAST_ERROR: 'lastError',
+  WS_URL: 'wsUrl'
 };
 
 export const browserApi = (() => {

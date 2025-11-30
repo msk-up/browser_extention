@@ -63,7 +63,11 @@
       <audio id="preview-audio" controls preload="metadata"></audio>
       <div id="preview-meta" class="meta">No audio captured yet.</div>
     </div>
-    <div class="hint">Open your meeting tab, then start listening to stream audio to your backend.</div>
+    <label style="display:block;margin-top:10px;font-size:12px;color:#475569;">
+      WebSocket URL (optional)
+      <input id="ws-url" type="text" placeholder="wss://your-endpoint" style="width:100%;margin-top:4px;padding:8px;border:1px solid #cbd5e1;border-radius:8px;font-size:12px;" />
+    </label>
+    <div class="hint">Open your meeting tab, start listening, approve sharing. If a WS URL is set, chunks stream there.</div>
     <script type="module" src="popup.js"></script>
   </body>
 </html>
